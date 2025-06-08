@@ -1,4 +1,4 @@
-![OpenRibcage Banner](docs/assets/openribcage-banner.png)
+![OpenRibcage Banner](openribcage-banner.png)
 
 # OpenRibcage
 
