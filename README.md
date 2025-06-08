@@ -1,6 +1,6 @@
-![OpenRibcage Banner](openribcage-banner.png)
+![openribcage Banner](openribcage-banner.png)
 
-# OpenRibcage
+# openribcage
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Go Report Card](https://goreportcard.com/badge/github.com/craineboss/openribcage)](https://goreportcard.com/report/github.com/craineboss/openribcage)
@@ -8,7 +8,7 @@
 
 > **The Universal Bridge for AI Agent Frameworks**
 
-OpenRibcage is the framework-agnostic abstraction layer that enables natural coordination of AI agencies across heterogeneous frameworks. Instead of learning different technical languages for each agent framework, coordinate all your agents through a single, transparent interface.
+openribcage is the framework-agnostic abstraction layer that enables natural coordination of AI agencies across heterogeneous frameworks. Instead of learning different technical languages for each agent framework, coordinate all your agents through a single, transparent interface.
 
 ## 🎯 The Problem We're Solving
 
@@ -16,9 +16,9 @@ Enterprise teams are adopting multiple AI agent frameworks—kagent for infrastr
 
 **What if there was a universal translator?**
 
-## 🔍 What OpenRibcage Does
+## 🔍 What openribcage Does
 
-OpenRibcage sits between your avatar interface (AAMI) and your heterogeneous agent frameworks, providing:
+openribcage sits between your avatar interface (AAMI) and your heterogeneous agent frameworks, providing:
 
 - **🔗 Framework-Agnostic Coordination**: Unified API layer for any agent framework
 - **🛡️ Enterprise Security**: Built-in security patterns with Agent Gateway integration  
@@ -33,7 +33,7 @@ OpenRibcage sits between your avatar interface (AAMI) and your heterogeneous age
 │                 AAMI - Avatar Agency Management Interface       │
 │          (Avatar-based Human-Agent Coordination)                │
 ├─────────────────────────────────────────────────────────────────┤
-│              OpenRibcage - Universal Agency Engine              │
+│              openribcage - Universal Agency Engine              │
 │           (Framework-agnostic abstraction layer)                │
 ├─────────────────────────────────────────────────────────────────┤
 │              AI Agent Framework Layer                           │
@@ -47,12 +47,12 @@ OpenRibcage sits between your avatar interface (AAMI) and your heterogeneous age
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-OpenRibcage provides the critical coordination layer that makes AAMI's natural avatar interface possible while maintaining complete transparency into your agent ecosystem.
+openribcage provides the critical coordination layer that makes AAMI's natural avatar interface possible while maintaining complete transparency into your agent ecosystem.
 
 ## 🎪 Core Concepts
 
 ### Framework Adapters
-Plugin-style connectors that translate between OpenRibcage's standard interface and each framework's specific API patterns. Each adapter handles:
+Plugin-style connectors that translate between openribcage's standard interface and each framework's specific API patterns. Each adapter handles:
 - Agency lifecycle management (create, start, stop, delete)
 - Real-time status monitoring and reporting
 - Command translation and execution
@@ -81,7 +81,7 @@ Continuous synchronization between AAMI and framework agencies:
 4. **LangGraph** - Workflow-based agent orchestration
 
 ### Framework Adapter Architecture
-Each framework gets its own adapter that implements the OpenRibcage interface:
+Each framework gets its own adapter that implements the openribcage interface:
 ```go
 type FrameworkAdapter interface {
     // Agency lifecycle management
@@ -99,7 +99,7 @@ type FrameworkAdapter interface {
 
 ## 🚀 Getting Started
 
-> **Note**: OpenRibcage is currently in active development. We're in the foundation phase, building the core architecture and kagent reference implementation.
+> **Note**: openribcage is currently in active development. We're in the foundation phase, building the core architecture and kagent reference implementation.
 
 ### Prerequisites
 - **Kubernetes cluster** (k3d recommended for development)
@@ -134,7 +134,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 - 🔄 AAMI integration planning
 
 ### Phase 2: Core Infrastructure (Weeks 3-5)
-- Core OpenRibcage engine implementation
+- Core openribcage engine implementation
 - kagent reference adapter
 - Basic AAMI integration layer
 - Kubernetes packaging
@@ -153,7 +153,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## 🔒 Security & Enterprise Features
 
-OpenRibcage integrates with [Agent Gateway](https://agentgateway.dev/) for enterprise-grade security:
+openribcage integrates with [Agent Gateway](https://agentgateway.dev/) for enterprise-grade security:
 - **Credential inheritance and access control**
 - **Cross-framework authentication**
 - **Comprehensive audit logging**
@@ -168,7 +168,7 @@ OpenRibcage integrates with [Agent Gateway](https://agentgateway.dev/) for enter
 
 ## 📖 Documentation
 
-- **[Architecture Guide](docs/architecture.md)** - Deep dive into OpenRibcage design (coming soon)
+- **[Architecture Guide](docs/architecture.md)** - Deep dive into openribcage design (coming soon)
 - **[Security Patterns](docs/security.md)** - Agent Gateway integration (coming soon)
 - **[Framework Adapters](docs/adapters/)** - Building framework connectors (coming soon)
 - **[API Reference](docs/api.md)** - Complete API documentation (coming soon)
@@ -184,7 +184,7 @@ OpenRibcage integrates with [Agent Gateway](https://agentgateway.dev/) for enter
 
 A world where coordinating AI agents feels as natural as managing human teams, where framework choice enhances rather than constrains your capabilities, and where transparency builds trust in autonomous systems.
 
-When your infrastructure agents (kagent) can seamlessly collaborate with your business process agents (CrewAI) and your workflow agents (n8n), all coordinated through natural conversation with avatar interfaces—that's the future OpenRibcage enables.
+When your infrastructure agents (kagent) can seamlessly collaborate with your business process agents (CrewAI) and your workflow agents (n8n), all coordinated through natural conversation with avatar interfaces—that's the future openribcage enables.
 
 ## 📄 License
 
