@@ -33,14 +33,14 @@ openribcage provides a complete A2A protocol client that enables avatar interfac
 │                 Avatar Interface Layer                          │
 │          (Natural conversation with AI agents)                  │
 ├─────────────────────────────────────────────────────────────────┤
-│              openribcage - A2A Protocol Client                 │
+│              openribcage - A2A Protocol Client                  │
 │           (Agent discovery, communication, orchestration)       │
 ├─────────────────────────────────────────────────────────────────┤
-│              A2A Protocol (JSON-RPC 2.0 / HTTP)               │
+│              A2A Protocol (JSON-RPC 2.0 / HTTP)                 │
 │                  (Standard agent communication)                 │
 ├─────────────────────────────────────────────────────────────────┤
-│              A2A-Compliant Agent Frameworks                    │
-│           (kagent, LangGraph, CrewAI, Google ADK)              │
+│              A2A-Compliant Agent Frameworks                     │
+│           (kagent, LangGraph, CrewAI, Google ADK)               │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
