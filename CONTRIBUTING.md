@@ -1,363 +1,334 @@
-# Contributing to OpenRibcage
+# Contributing to openribcage
 
-🎉 Thank you for your interest in contributing to OpenRibcage! We're building the universal coordination layer for AI agent frameworks, and we need passionate developers, framework experts, and enterprise practitioners to make this vision a reality.
+🎉 Thank you for your interest in contributing to openribcage! We're building an A2A (Agent2Agent) protocol client for avatar-based agent coordination, and we need passionate developers, protocol experts, and enterprise practitioners to make this vision a reality.
 
 ## 🎯 What We're Building
 
-OpenRibcage enables natural coordination of AI agencies across heterogeneous frameworks through transparent, framework-agnostic abstraction. Whether you're coordinating kagent infrastructure agents with CrewAI business process agents, or orchestrating complex multi-framework workflows, OpenRibcage provides the universal translation layer that makes it all possible.
+openribcage is a standards-based A2A protocol client that enables avatar interfaces to communicate with any A2A-compliant agent framework. We're focused on implementing the Google-backed Agent2Agent protocol specification to provide universal agent communication through natural avatar interfaces.
 
 ## 🤝 How You Can Contribute
 
-### 🔌 Framework Adapter Development (Primary Need)
-**Build bridges between OpenRibcage and agent frameworks**
+### 🌐 A2A Protocol Implementation (Primary Need)
+**Build the core A2A protocol client infrastructure**
 
-We're actively seeking developers to build framework adapters for:
-- **kagent** (Kubernetes-native agents) - *Priority #1*
-- **n8n** (Visual workflow automation) - *Priority #2*  
-- **CrewAI** (Role-based agent teams) - *Priority #3*
-- **LangGraph** (Workflow orchestration) - *Priority #4*
-- **Custom frameworks** (Your favorite agent system)
+We're actively seeking developers to work on:
+- **JSON-RPC 2.0 Client** - Core A2A method implementation
+- **AgentCard Discovery** - Agent discovery via `.well-known/agent.json` endpoints
+- **Server-Sent Events Streaming** - Real-time A2A communication
+- **Agent Registry** - A2A agent management and lifecycle
 
-### 🏗️ Core Infrastructure Development
-**Strengthen the universal coordination engine**
+### 🧪 Framework Integration Testing
+**Validate A2A protocol compliance across frameworks**
 
-- Real-time agency coordination and streaming
-- AAMI integration APIs and protocols
-- Security and audit logging systems
-- Performance optimization and scaling
+- **kagent Integration** - Test with kagent A2A endpoints (Priority #1)
+- **LangGraph A2A Testing** - Validate LangGraph A2A compliance
+- **CrewAI Protocol Testing** - Test CrewAI A2A implementation
+- **Google ADK Integration** - Validate Google Agent Development Kit A2A support
+
+### 🎭 Avatar Interface Integration
+**Bridge A2A protocol data to avatar-based interfaces**
+
+- AgentCard to avatar persona mapping systems
+- Real-time avatar updates via A2A streaming
+- Avatar interface APIs and integration patterns
+- Natural conversation flow through A2A messaging
 
 ### 🛡️ Security & Enterprise Features
-**Build enterprise-grade security and compliance**
+**Build enterprise-grade A2A protocol security**
 
-- Agent Gateway integration patterns
-- Credential inheritance and access control
+- A2A authentication and authorization patterns
+- Agent Gateway integration for enterprise data plane
+- A2A protocol security validation and testing
 - Compliance framework support (SOX, GDPR, HIPAA)
-- Security audit and penetration testing
 
 ### 📚 Documentation & Community
-**Help others succeed with OpenRibcage**
+**Help others succeed with A2A protocol implementation**
 
-- Framework adapter development guides
-- Architecture documentation and tutorials
-- Security pattern documentation
+- A2A protocol implementation guides
+- AgentCard format documentation
+- Avatar integration tutorials
 - Community support and mentorship
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- **Go 1.21+** for core development
-- **Docker** for containerization
-- **Kubernetes cluster** (k3d recommended for development)
-- Basic understanding of agent frameworks and distributed systems
+- **Go 1.21+** for core A2A client development
+- **Docker** for containerization and testing
+- **kubectl** for kagent A2A endpoint testing
+- Basic understanding of JSON-RPC 2.0 and HTTP protocols
 
 ### Development Environment Setup
 
 ```bash
 # Clone the repository
-git clone https://github.com/craineboss/openribcage.git
+git clone https://github.com/craine-io/openribcage.git
 cd openribcage
 
 # Set up development environment
-make setup-dev
+./scripts/setup-dev.sh
 
-# Run tests
-make test
+# Test A2A protocol client (coming in Phase 2)
+./scripts/test-a2a-client.sh
 
-# Build the project
-make build
+# Run A2A protocol compliance tests
+go test ./test/integration/...
 ```
 
-> **Note**: Detailed setup instructions are coming as we develop the core infrastructure. For now, join our Discord for real-time setup assistance.
+### kagent A2A Testing Environment
+
+Set up the [kagent sandbox](https://github.com/craine-io/istio-envoy-sandboxes/tree/main/k3d-sandboxes/kagent-sandbox) for real A2A endpoint testing:
+
+```bash
+# Set up kagent with A2A endpoints
+cd kagent-sandbox
+./scripts/cluster-setup-k3d-kagent-everything.sh
+
+# Test openribcage A2A client against kagent
+# kagent A2A endpoint: http://localhost:8083/api/a2a/kagent/
+```
 
 ### Your First Contribution
 
 1. **Join our Discord**: [https://discord.gg/craine-io](https://discord.gg/craine-io)
-2. **Browse open issues**: Look for `good-first-issue` and `help-wanted` labels
-3. **Read the architecture docs**: Understand how OpenRibcage coordinates frameworks
-4. **Pick a framework adapter**: Choose a framework you're passionate about
-5. **Start small**: Begin with basic status monitoring before complex coordination
+2. **Browse A2A protocol issues**: Look for `a2a-protocol`, `agentcard`, and `json-rpc` labels
+3. **Read the A2A specification**: Study [Google's A2A Protocol](https://github.com/google-a2a/A2A)
+4. **Start with Issue #2**: "Study A2A Protocol Specification" is perfect for newcomers
+5. **Test with kagent**: Validate your A2A understanding with real endpoints
 
-## 🔌 Framework Adapter Development Guide
+## 🌐 A2A Protocol Development Guide
 
-### Adapter Interface
+### Core A2A Components
 
-Every framework adapter implements the standard OpenRibcage interface:
+openribcage implements the complete A2A protocol specification:
 
 ```go
-type FrameworkAdapter interface {
-    // Framework metadata and capabilities
-    GetFrameworkInfo() FrameworkInfo
-    GetSupportedCapabilities() []Capability
+// A2A Protocol Client Interface
+type A2AClient interface {
+    // Agent Discovery
+    DiscoverAgent(baseURL string) (*AgentCard, error)
+    RegisterAgent(agent *AgentCard) error
     
-    // Agency lifecycle management
-    CreateAgency(config AgencyConfig) (*Agency, error)
-    DeleteAgency(id string) error
-    StartAgency(id string) error
-    StopAgency(id string) error
+    // A2A Method Calls (JSON-RPC 2.0)
+    SendMessage(agentID string, message *A2AMessage) (*A2AResponse, error)
+    CreateTask(agentID string, task *A2ATask) (*A2ATaskResponse, error)
+    GetTaskStatus(taskID string) (*A2ATaskStatus, error)
     
-    // Real-time monitoring and status
-    GetAgencyStatus(id string) (*AgencyStatus, error)
-    ListAgencies() ([]*Agency, error)
-    StreamAgencyActivity(id string) (<-chan AgencyActivity, error)
+    // Real-time Streaming (Server-Sent Events)
+    StreamMessages(agentID string) (<-chan *A2AMessage, error)
+    StreamTaskUpdates(taskID string) (<-chan *A2ATaskUpdate, error)
     
-    // Command execution and coordination
-    ExecuteCommand(agencyID string, command Command) (*Result, error)
-    GetCommandHistory(agencyID string) ([]*CommandExecution, error)
-    
-    // Health and diagnostics
-    HealthCheck() error
-    GetMetrics() Metrics
+    // Health and Diagnostics
+    Ping(agentID string) error
+    GetAgentStatus(agentID string) (*A2AAgentStatus, error)
 }
 ```
 
-### Adapter Development Steps
+### A2A Development Priorities
 
-1. **Study target framework**: Understand APIs, agent models, and coordination patterns
-2. **Implement interface**: Start with basic lifecycle and status methods
-3. **Add real-time features**: Implement activity streaming and monitoring
-4. **Test integration**: Validate with OpenRibcage core and test scenarios
-5. **Document patterns**: Create guides for your framework's specific patterns
+#### 1. JSON-RPC 2.0 Client (`pkg/a2a/client/`)
+- HTTP transport layer with connection pooling
+- Request/response correlation and timeout handling
+- A2A method call implementation (`message/send`, `task/create`, etc.)
+- Authentication integration (Bearer tokens, API keys)
 
-### Framework-Specific Considerations
+#### 2. AgentCard Discovery (`pkg/agentcard/`)
+- `.well-known/agent.json` HTTP endpoint discovery
+- JSON schema validation for AgentCard format compliance
+- Agent capability parsing and indexing
+- Dynamic agent registration and health monitoring
 
-#### kagent Adapter
-- Leverage Kubernetes CRDs and controller patterns
-- Integrate with Go-based kagent controller APIs
-- Handle Python AutoGen engine coordination
-- Support cloud-native deployment patterns
+#### 3. Streaming Integration (`pkg/a2a/streaming/`)
+- Server-Sent Events (SSE) client implementation
+- Real-time message and task update streaming
+- Connection management and recovery
+- Event parsing and routing
 
-#### n8n Adapter  
-- Work with n8n's REST API and webhook systems
-- Handle visual workflow representation and monitoring
-- Support n8n's execution model and error handling
-- Integrate with n8n's credential and connection management
+#### 4. Avatar Integration (`pkg/avatar/`)
+- AgentCard to avatar persona mapping
+- Real-time avatar updates from A2A streams
+- Avatar interface API patterns
+- Natural conversation flow management
 
-#### CrewAI Adapter
-- Support role-based agent hierarchies and delegation
-- Handle crew coordination and task distribution
-- Integrate with CrewAI's team communication patterns
-- Support specialized role capabilities and reporting
+### Framework-Specific A2A Testing
 
-#### LangGraph Adapter
-- Work with workflow graph execution models
-- Handle state machines and decision tree coordination
-- Support complex branching and conditional logic
-- Integrate with LangChain ecosystem components
+#### kagent A2A Integration
+- Test AgentCard discovery from kagent endpoints
+- Validate JSON-RPC 2.0 method calls with kagent
+- Test SSE streaming with kagent real-time responses
+- Performance testing with kagent A2A endpoints
+
+#### LangGraph A2A Compliance
+- Validate LangGraph A2A protocol implementation
+- Test workflow-based agent coordination via A2A
+- Document LangGraph-specific A2A patterns
+- Integration testing with openribcage client
+
+#### CrewAI A2A Validation
+- Test role-based team coordination via A2A protocol
+- Validate CrewAI AgentCard format compliance
+- Test crew communication patterns through A2A
+- Document CrewAI-specific capabilities mapping
 
 ## 🏗️ Development Workflow
 
 ### 1. Issue Creation and Discussion
-- **Check existing issues** before creating new ones
-- **Use issue templates** for bug reports and feature requests
-- **Join Discord discussions** for architecture and design questions
-- **Tag relevant maintainers** for framework-specific questions
+- **Check A2A protocol issues** before creating new ones
+- **Use A2A-specific labels** for protocol-related issues
+- **Join Discord #a2a-protocol** channel for technical discussions
+- **Reference A2A specification** in issue descriptions
 
 ### 2. Development Process
-- **Fork the repository** and create a feature branch
-- **Follow Go conventions** and project code style
-- **Write comprehensive tests** for all new functionality
-- **Update documentation** for any API or behavior changes
-- **Run the full test suite** before submitting
+- **Follow A2A protocol standards** for all implementations
+- **Test against kagent endpoints** for validation
+- **Write comprehensive A2A compliance tests**
+- **Document A2A patterns and integration points**
+- **Validate with A2A specification requirements**
 
 ### 3. Pull Request Guidelines
-- **Create focused PRs** that address a single issue or feature
-- **Write clear commit messages** following conventional commit format
-- **Include tests and documentation** for all changes
-- **Request reviews** from relevant maintainers and community members
-- **Address feedback promptly** and engage in constructive discussion
+- **Focus on A2A protocol compliance** in all changes
+- **Include A2A protocol testing** for new functionality
+- **Reference A2A specification sections** in documentation
+- **Test against multiple A2A-compliant frameworks** when possible
+- **Document avatar interface integration patterns**
 
 ### Code Style and Standards
 
-#### Go Code Standards
-- Follow `gofmt` and `golint` recommendations
-- Use `go mod` for dependency management
-- Include comprehensive error handling and logging
-- Write table-driven tests with good coverage
-- Document all exported functions and types
+#### Go Code Standards for A2A Implementation
+- Follow A2A protocol naming conventions
+- Implement proper JSON-RPC 2.0 error handling
+- Use structured logging for A2A protocol debugging
+- Include comprehensive A2A method testing
+- Document all A2A protocol compliance decisions
 
-#### Commit Message Format
-```
-type(scope): description
+#### A2A Protocol Testing Requirements
+- **AgentCard Validation**: Test `.well-known/agent.json` discovery
+- **JSON-RPC 2.0 Compliance**: Validate all A2A method implementations
+- **SSE Streaming**: Test real-time communication patterns
+- **Multi-Framework Testing**: Validate against kagent, LangGraph, CrewAI
+- **Avatar Integration**: Test AgentCard to avatar persona mapping
 
-[optional body]
+## 🛡️ A2A Protocol Security
 
-[optional footer]
-```
+### Secure A2A Implementation
+- **Follow A2A authentication standards** for all agent communication
+- **Validate AgentCard schemas** to prevent malicious agent registration
+- **Implement proper TLS/HTTPS** for all A2A protocol communication
+- **Use secure JSON-RPC 2.0 patterns** with proper error handling
+- **Follow Agent Gateway security patterns** for enterprise integration
 
-Examples:
-- `feat(kagent): add agency lifecycle management`
-- `fix(streaming): resolve WebSocket connection drops`
-- `docs(adapters): add CrewAI integration guide`
+### A2A Protocol Compliance Testing
+- **Security testing**: Validate A2A authentication mechanisms
+- **Schema validation**: Test AgentCard format compliance
+- **Protocol fuzzing**: Test JSON-RPC 2.0 implementation robustness
+- **Integration security**: Validate cross-framework A2A security
 
-#### Testing Requirements
-- **Unit tests**: All new functions and methods
-- **Integration tests**: Framework adapter functionality
-- **End-to-end tests**: Complete coordination workflows
-- **Performance tests**: Real-time streaming and coordination
-- **Security tests**: Access control and audit logging
+## 📋 A2A Development Phases
 
-## 🛡️ Security Considerations
+### Phase 1: A2A Protocol Foundation (Weeks 1-2) 🔄 *Current*
+**Priority contributions:**
+- A2A protocol specification analysis and documentation
+- AgentCard discovery system implementation
+- JSON-RPC 2.0 client foundation
+- kagent A2A endpoint testing and validation
 
-### Secure Development Practices
-- **Never commit secrets** or credentials to the repository
-- **Use secure coding practices** for authentication and authorization
-- **Validate all inputs** from external frameworks and APIs
-- **Implement proper error handling** without exposing sensitive information
-- **Follow principle of least privilege** for system access
+### Phase 2: Core A2A Client (Weeks 3-5)
+**Priority contributions:**
+- Complete A2A method implementation
+- Server-Sent Events streaming client
+- Agent registry and lifecycle management
+- A2A protocol compliance testing
 
-### Agent Gateway Integration
-- **Study security patterns** from [Agent Gateway documentation](https://agentgateway.dev/docs/security/)
-- **Implement credential inheritance** properly across framework boundaries
-- **Ensure audit logging** captures all security-relevant events
-- **Test access control boundaries** with malicious input scenarios
+### Phase 3: Multi-Agent Orchestration (Weeks 6-8)
+**Priority contributions:**
+- Multi-framework A2A protocol testing
+- Cross-agent communication via A2A
+- A2A protocol performance optimization
+- Framework compatibility validation
 
-## 📋 Pull Request Process
+### Phase 4: Avatar Interface Integration (Weeks 9-12)
+**Priority contributions:**
+- AgentCard to avatar persona mapping
+- Real-time avatar updates via A2A streaming
+- Avatar interface API development
+- Natural conversation flow implementation
 
-### Before Submitting
-- [ ] **Tests pass locally**: Run `make test` successfully
-- [ ] **Code is properly formatted**: Run `make fmt` and `make lint`
-- [ ] **Documentation updated**: Include relevant doc changes
-- [ ] **Security review**: Consider security implications of changes
-- [ ] **Performance tested**: Verify no performance regressions
+## 🏆 A2A Protocol Contributor Recognition
 
-### Review Process
-1. **Automated checks**: CI/CD runs tests and validation
-2. **Maintainer review**: Core team reviews architecture and implementation
-3. **Community feedback**: Framework experts review adapter-specific changes
-4. **Security review**: Security-focused review for sensitive changes
-5. **Final approval**: Maintainer approval and merge
+### A2A Protocol Specialist Recognition
+Contributors who build A2A protocol components become **A2A Protocol Specialists** with:
+- **A2A protocol expertise recognition** in community
+- **Direct input on A2A compliance decisions**
+- **Framework integration authority** for A2A testing
+- **Conference speaking opportunities** on A2A protocol implementation
 
-### After Merge
-- **Monitor issues**: Watch for any problems with your changes
-- **Update documentation**: Ensure docs reflect merged changes
-- **Community support**: Help answer questions about your contribution
-- **Iterate and improve**: Continue refining based on feedback
-
-## 🏆 Recognition and Rewards
-
-### Contributor Recognition
-- **GitHub contributor status** on all repositories
-- **Discord contributor role** with special permissions
-- **Blog post features** highlighting significant contributions
-- **Conference speaking opportunities** for major framework adapters
-- **Direct line to maintainers** for architectural discussions
-
-### Framework Adapter Maintainership
-Contributors who build and maintain framework adapters become **Adapter Maintainers** with:
-- **Direct merge privileges** for their adapter codebase
-- **Framework roadmap input** and prioritization authority
-- **Community leadership** role for their framework specialty
-- **Conference and content opportunities** representing OpenRibcage
+### Framework A2A Integration Maintainership
+Contributors who implement A2A integration with specific frameworks become **Framework A2A Maintainers** with:
+- **Framework-specific A2A testing authority**
+- **A2A compliance validation responsibilities**
+- **Community leadership** for framework A2A integration
+- **Protocol specification input** for framework-specific patterns
 
 ## 📞 Community and Communication
 
 ### Discord Server
-**Primary communication hub**: [https://discord.gg/craine-io](https://discord.gg/craine-io)
+**Primary A2A development hub**: [https://discord.gg/craine-io](https://discord.gg/craine-io)
 
-**Channels:**
-- `#general` - General discussion and announcements
-- `#framework-adapters` - Framework-specific development discussions
-- `#architecture` - Core system design and technical architecture
-- `#security` - Security patterns and Agent Gateway integration
-- `#help` - Questions and community support
-- `#show-and-tell` - Showcase your contributions and progress
+**A2A-Focused Channels:**
+- `#a2a-protocol` - A2A protocol implementation discussions
+- `#agentcard-discovery` - Agent discovery and AgentCard format
+- `#json-rpc-client` - JSON-RPC 2.0 client development
+- `#avatar-integration` - Avatar interface A2A integration
+- `#kagent-testing` - kagent A2A endpoint testing
+- `#framework-a2a` - Multi-framework A2A compliance
 
-### GitHub Discussions
-**Asynchronous discussion**: Use GitHub Discussions for:
-- **Architecture proposals** and design documents
-- **Framework integration planning** and coordination
-- **Long-form technical discussions** and RFCs
-- **Community polls** and decision-making
+### A2A Protocol Office Hours
+**Weekly A2A protocol focus**: Every Wednesday 3-4 PM PT
+- **A2A specification discussions** and implementation guidance
+- **Framework A2A compliance testing** and validation
+- **Avatar integration planning** and pattern review
+- **Community A2A protocol showcase** and feedback
 
-### Office Hours
-**Weekly maintainer office hours**: Every Friday 2-3 PM PT
-- **Direct access** to core maintainers
-- **Real-time help** with development questions
-- **Architecture discussion** and decision-making
-- **Community showcase** and feedback sessions
+## ❓ A2A Protocol FAQ
 
-## 🔄 Development Phases and Priorities
+### Q: I'm new to JSON-RPC 2.0. Can I still contribute?
+**A:** Absolutely! We provide A2A protocol learning resources and mentorship. The A2A specification is well-documented and approachable.
 
-### Phase 1: Foundation (Current - Weeks 1-2)
-**Priority contributions:**
-- Core architecture review and feedback
-- kagent adapter specification and design
-- AAMI integration planning and protocol design
-- Security pattern documentation and planning
+### Q: How do I test A2A protocol compliance?
+**A:** Use the kagent sandbox for real A2A endpoint testing. We also provide A2A protocol compliance testing tools.
 
-### Phase 2: Core Infrastructure (Weeks 3-5)
-**Priority contributions:**
-- kagent reference adapter implementation
-- Core coordination engine development
-- Real-time streaming and WebSocket implementation
-- Basic AAMI integration and testing
+### Q: What if a framework doesn't support A2A protocol?
+**A:** We focus exclusively on A2A-compliant frameworks. Frameworks without A2A support are out of scope for openribcage.
 
-### Phase 3: Multi-Framework Support (Weeks 6-8)
-**Priority contributions:**
-- n8n adapter development and testing
-- CrewAI adapter implementation
-- LangGraph adapter development
-- Cross-framework coordination testing
+### Q: How do I contribute to AgentCard format validation?
+**A:** Study the A2A specification AgentCard schema and implement validation in `pkg/agentcard/`. Test against kagent AgentCard examples.
 
-### Phase 4: Production Readiness (Weeks 9-12)
-**Priority contributions:**
-- Performance optimization and scaling
-- Security hardening and compliance
-- Comprehensive testing and validation
-- Documentation and community resources
-
-## ❓ FAQ
-
-### Q: I'm new to Go. Can I still contribute?
-**A:** Absolutely! We're committed to helping contributors learn Go as part of their OpenRibcage journey. Join our Discord for Go learning resources and mentorship.
-
-### Q: My framework isn't on the priority list. Can I build an adapter?
-**A:** Yes! We encourage adapters for any agent framework. The priority list guides our core team focus, but community adapters are always welcome.
-
-### Q: How do I propose architectural changes?
-**A:** Start with a GitHub Discussion or Discord conversation. For major changes, we'll ask for a design document and community review process.
-
-### Q: Can I contribute if I work for a framework company?
-**A:** Absolutely! We welcome contributions from framework maintainers and employees. Your expertise helps make adapters more robust and authentic.
-
-### Q: What if I find security vulnerabilities?
-**A:** Please report security issues privately to [security@craine.io](mailto:security@craine.io). We follow responsible disclosure practices and will acknowledge your contribution.
-
-### Q: How do you handle intellectual property and licensing?
-**A:** All contributions are licensed under Apache 2.0. By contributing, you agree that your contributions will be licensed under the same license. We require a signed Contributor License Agreement for significant contributions.
-
-### Q: Can I get paid for contributions?
-**A:** While OpenRibcage is open source, we occasionally sponsor specific development efforts or offer bounties for critical features. Join Discord for announcements about paid opportunities.
+### Q: Can I propose changes to A2A protocol implementation?
+**A:** Implementation improvements are welcome, but protocol changes should go through the official A2A specification process.
 
 ## 🎯 Contributor License Agreement
 
-For substantial contributions, we require a Contributor License Agreement (CLA) that:
-- **Grants Craine Technology Labs** rights to use and distribute your contributions
-- **Ensures you have rights** to make the contribution
-- **Maintains open source nature** of the project
-- **Protects all contributors** from legal issues
+For substantial A2A protocol contributions, we require a Contributor License Agreement (CLA) that ensures open source licensing and protects all contributors.
 
 ## 📧 Contact and Support
 
-### Maintainer Team
+### A2A Protocol Maintainer Team
 - **Jason T Clark** - Project Lead - [@craineboss](https://github.com/craineboss)
-- **Core Team** - [Contact via Discord](https://discord.gg/craine-io)
+- **A2A Protocol Team** - [Contact via Discord #a2a-protocol](https://discord.gg/craine-io)
 
-### Getting Help
-- **Discord Community**: [https://discord.gg/craine-io](https://discord.gg/craine-io)
-- **GitHub Issues**: [Report bugs and request features](https://github.com/craineboss/openribcage/issues)
-- **Email**: [contributors@craine.io](mailto:contributors@craine.io)
-- **Documentation**: [docs.craine.io](https://docs.craine.io) (coming soon)
+### Getting A2A Protocol Help
+- **Discord #a2a-protocol**: [https://discord.gg/craine-io](https://discord.gg/craine-io)
+- **A2A Protocol Issues**: [GitHub Issues with a2a-protocol label](https://github.com/craine-io/openribcage/issues)
+- **A2A Specification**: [Official A2A Protocol Documentation](https://github.com/google-a2a/A2A)
 
 ## 🌟 Thank You
 
-OpenRibcage exists because of contributors like you who believe in making AI agent coordination more transparent, accessible, and powerful. Every contribution—whether it's code, documentation, community support, or feedback—helps build the future of human-AI collaboration.
+openribcage exists because of contributors who believe in standards-based agent communication and avatar-based interfaces. Every A2A protocol contribution—whether it's JSON-RPC 2.0 implementation, AgentCard discovery, or avatar integration—helps build the future of natural AI agent coordination.
 
-Together, we're creating the universal bridge that connects all agent frameworks and makes the promise of natural AI coordination a reality.
+Together, we're implementing the A2A protocol standard that enables universal agent communication through beautiful avatar interfaces.
 
-**Ready to crack open the ribcage and see how it all works?** We can't wait to see what you build!
+**Ready to build the A2A protocol client that powers avatar-based agent coordination?** We can't wait to see what you implement!
 
 ---
 
-*This contributing guide is a living document. Join our community discussions to help improve it and make OpenRibcage more accessible to contributors worldwide.*
+*This contributing guide focuses on A2A protocol implementation. Join our community discussions to help improve openribcage's A2A compliance and avatar integration capabilities.*
