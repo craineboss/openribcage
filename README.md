@@ -1,190 +1,257 @@
 ![openribcage Banner](openribcage-banner.png)
 
-# openribcage
+# openribcage - A2A Protocol Client for Avatar Interfaces
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Go Report Card](https://goreportcard.com/badge/github.com/craineboss/openribcage)](https://goreportcard.com/report/github.com/craineboss/openribcage)
-[![Discord](https://img.shields.io/discord/YOUR_DISCORD_ID?logo=discord)](https://discord.gg/craine-io)
+[![Go Report Card](https://goreportcard.com/badge/github.com/craine-io/openribcage)](https://goreportcard.com/report/github.com/craine-io/openribcage)
+[![A2A Protocol](https://img.shields.io/badge/A2A-Protocol%20Compliant-green.svg)](https://github.com/google-a2a/A2A)
 
-> **The Universal Bridge for AI Agent Frameworks**
+> **Standards-Based A2A Protocol Client for Avatar-Based Agent Coordination**
 
-openribcage is the framework-agnostic abstraction layer that enables natural coordination of AI agencies across heterogeneous frameworks. Instead of learning different technical languages for each agent framework, coordinate all your agents through a single, transparent interface.
+openribcage is an A2A (Agent2Agent) protocol client designed to enable avatar-based interfaces for AI agent coordination. It serves as the backend communication layer for avatar management interfaces, providing standardized agent discovery, communication, and orchestration capabilities through the proven A2A protocol standard.
 
 ## 🎯 The Problem We're Solving
 
-Enterprise teams are adopting multiple AI agent frameworks—kagent for infrastructure, CrewAI for business processes, n8n for workflows, LangGraph for complex decision trees. Each framework speaks a different language, requires different skills, and creates operational silos.
+Enterprise teams need to coordinate AI agents naturally through avatar interfaces, but agents from different frameworks (kagent, LangGraph, CrewAI) speak different protocols. What if there was a standards-based approach?
 
-**What if there was a universal translator?**
+**openribcage implements the Google-backed A2A protocol to enable universal agent communication.**
 
 ## 🔍 What openribcage Does
 
-openribcage sits between your avatar interface (AAMI) and your heterogeneous agent frameworks, providing:
+openribcage provides a complete A2A protocol client that enables avatar interfaces to communicate with any A2A-compliant agent framework:
 
-- **🔗 Framework-Agnostic Coordination**: Unified API layer for any agent framework
-- **🛡️ Enterprise Security**: Built-in security patterns with Agent Gateway integration  
-- **👥 Natural Team Dynamics**: Coordinate agents like human colleagues
-- **📊 Complete Transparency**: Always see what's happening in your agent ecosystem
-- **🔌 Simple Integration**: Standardized adapter pattern for connecting frameworks
+- **🌐 A2A Protocol Client**: Full JSON-RPC 2.0 implementation with Agent2Agent standard compliance
+- **🔍 Agent Discovery**: Automatic AgentCard discovery via `.well-known/agent.json` endpoints
+- **⚡ Real-time Streaming**: Server-Sent Events (SSE) for live agent communication and status updates
+- **🎭 Avatar Integration**: AgentCard to avatar persona mapping for natural conversation interfaces
+- **🔒 Enterprise Security**: Standard HTTP authentication with Agent Gateway integration patterns
 
 ## 🏗️ Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                 AAMI - Avatar Agency Management Interface       │
-│          (Avatar-based Human-Agent Coordination)                │
+│                 Avatar Interface Layer                          │
+│          (Natural conversation with AI agents)                  │
 ├─────────────────────────────────────────────────────────────────┤
-│              openribcage - Universal Agency Engine              │
-│           (Framework-agnostic abstraction layer)                │
+│              openribcage - A2A Protocol Client                 │
+│           (Agent discovery, communication, orchestration)       │
 ├─────────────────────────────────────────────────────────────────┤
-│              AI Agent Framework Layer                           │
-│           (kagent, AutoGen, CrewAI, LangGraph, etc.)           │
+│              A2A Protocol (JSON-RPC 2.0 / HTTP)               │
+│                  (Standard agent communication)                 │
 ├─────────────────────────────────────────────────────────────────┤
-│           Model Context Protocol (MCP) Layer                    │
-│                  (Standardized Tool Access)                     │
-├─────────────────────────────────────────────────────────────────┤
-│              External Tools & Systems                           │
-│    (Kubernetes, Prometheus, GitHub, JIRA, Slack, Datadog)       │
+│              A2A-Compliant Agent Frameworks                    │
+│           (kagent, LangGraph, CrewAI, Google ADK)              │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-openribcage provides the critical coordination layer that makes AAMI's natural avatar interface possible while maintaining complete transparency into your agent ecosystem.
+## 📁 Project Structure
 
-## 🎪 Core Concepts
+```
+openribcage/
+├── cmd/                          # Command-line applications
+│   ├── openribcage/             # Main A2A client application
+│   └── discovery/               # Agent discovery tools
+├── pkg/                          # Core library packages
+│   ├── a2a/                     # A2A protocol implementation
+│   │   ├── client/              # JSON-RPC 2.0 A2A client
+│   │   ├── types/               # A2A protocol types and schemas
+│   │   └── streaming/           # Server-Sent Events streaming
+│   ├── agentcard/               # AgentCard discovery and parsing
+│   ├── registry/                # Agent registry and management
+│   └── avatar/                  # Avatar interface integration
+├── internal/                     # Private application code
+│   ├── config/                  # Configuration management
+│   ├── auth/                    # Authentication handlers
+│   └── logging/                 # Structured logging
+├── api/                          # API definitions and schemas
+│   ├── openapi/                 # OpenAPI specifications
+│   └── grpc/                    # gRPC definitions (if needed)
+├── deployments/                  # Deployment configurations
+│   ├── kubernetes/              # K8s manifests
+│   ├── docker/                  # Docker configurations
+│   └── helm/                    # Helm charts
+├── scripts/                      # Build and development scripts
+│   ├── test-a2a-client.sh       # A2A client testing
+│   └── setup-dev.sh             # Development environment setup
+├── docs/                         # Documentation
+│   ├── a2a-protocol.md          # A2A protocol implementation guide
+│   ├── agent-discovery.md       # AgentCard discovery documentation
+│   ├── avatar-integration.md    # Avatar interface integration
+│   └── examples/                # Usage examples and tutorials
+├── test/                         # Integration and e2e tests
+│   ├── integration/             # A2A protocol integration tests
+│   └── fixtures/                # Test data and mock agents
+├── examples/                     # Example implementations
+│   ├── kagent/                  # kagent A2A integration example
+│   └── avatar-client/           # Avatar interface example
+└── tools/                        # Development and build tools
+    ├── agentcard-validator/     # AgentCard format validator
+    └── a2a-tester/              # A2A protocol compliance tester
+```
 
-### Framework Adapters
-Plugin-style connectors that translate between openribcage's standard interface and each framework's specific API patterns. Each adapter handles:
-- Agency lifecycle management (create, start, stop, delete)
-- Real-time status monitoring and reporting
-- Command translation and execution
-- Framework-specific configuration management
+## 🎪 Core A2A Protocol Components
 
-### Agency Abstraction
-A unified representation of AI agencies regardless of underlying framework:
-- **Capabilities**: What the agency can do
-- **Status**: Current operational state
-- **Metadata**: Framework, specialization, performance metrics
-- **Communication**: Standardized interaction patterns
+### JSON-RPC 2.0 Client
+Standards-compliant JSON-RPC 2.0 client implementing all A2A protocol methods:
+- `message/send` - Send messages to agents
+- `message/stream` - Real-time streaming communication
+- `task/create` - Create and manage agent tasks
+- `task/status` - Monitor task execution status
 
-### Real-time Coordination
-Continuous synchronization between AAMI and framework agencies:
-- Live status updates and activity streaming
-- Dynamic capability registration and discovery
-- Cross-framework agency collaboration
-- Performance monitoring and optimization
+### AgentCard Discovery
+Automatic agent discovery via A2A standard `.well-known/agent.json` endpoints:
+- JSON schema validation for AgentCard format compliance
+- Capability parsing and indexing
+- Health monitoring and status tracking
+- Dynamic agent registration and deregistration
 
-## 🛠️ Supported Frameworks
+### Avatar Interface Integration
+Bridge between A2A protocol data and avatar-based interfaces:
+- AgentCard to avatar persona mapping
+- Real-time avatar updates via A2A streaming
+- Natural conversation flow through A2A message handling
+
+## 🛠️ Supported A2A Frameworks
+
+openribcage connects to any A2A-compliant agent framework:
 
 ### Current Development Priority
-1. **kagent** - Kubernetes-native agent framework (reference implementation)
-2. **n8n** - Visual workflow automation
-3. **CrewAI** - Role-based agent team coordination
-4. **LangGraph** - Workflow-based agent orchestration
+1. **kagent** - Kubernetes-native agent framework with native A2A endpoints
+2. **LangGraph** - Graph-based agent workflows with A2A support  
+3. **CrewAI** - Role-based team coordination via A2A protocol
+4. **Google ADK** - Agent Development Kit with native A2A implementation
 
-### Framework Adapter Architecture
-Each framework gets its own adapter that implements the openribcage interface:
-```go
-type FrameworkAdapter interface {
-    // Agency lifecycle management
-    CreateAgency(config AgencyConfig) (*Agency, error)
-    DeleteAgency(id string) error
-    
-    // Real-time monitoring
-    GetAgencyStatus(id string) (*AgencyStatus, error)
-    StreamAgencyActivity(id string) (<-chan AgencyActivity, error)
-    
-    // Command execution
-    ExecuteCommand(agencyID string, command Command) (*Result, error)
-}
-```
+### A2A Protocol Compliance
+All supported frameworks implement the standard A2A protocol:
+- `.well-known/agent.json` AgentCard discovery
+- JSON-RPC 2.0 method calls over HTTP(S)
+- Server-Sent Events for real-time streaming
+- Standard authentication schemes
 
 ## 🚀 Getting Started
 
-> **Note**: openribcage is currently in active development. We're in the foundation phase, building the core architecture and kagent reference implementation.
+> **Note**: openribcage is currently in active development. We're building the A2A protocol client foundation and kagent integration.
 
 ### Prerequisites
-- **Kubernetes cluster** (k3d recommended for development)
 - **Go 1.21+** for core development
 - **Docker** for containerization
+- **kubectl** for kagent testing
+- **kagent sandbox** for A2A endpoint testing
 
 ### Development Setup
 ```bash
 # Clone the repository
-git clone https://github.com/craineboss/openribcage.git
+git clone https://github.com/craine-io/openribcage.git
 cd openribcage
 
-# More setup instructions coming as we develop the core system
+# Set up development environment
+./scripts/setup-dev.sh
+
+# Test A2A client with kagent endpoints (coming in Phase 2)
+./scripts/test-a2a-client.sh
+
+# Run A2A protocol compliance tests
+go test ./test/integration/...
+```
+
+### kagent A2A Testing
+Use the [kagent sandbox](https://github.com/craine-io/istio-envoy-sandboxes/tree/main/k3d-sandboxes/kagent-sandbox) for A2A protocol testing:
+
+```bash
+# Set up kagent with A2A endpoints
+cd kagent-sandbox
+./scripts/cluster-setup-k3d-kagent-everything.sh
+
+# Test openribcage A2A client
+# kagent A2A endpoint: http://localhost:8083/api/a2a/kagent/
 ```
 
 ## 🤝 Contributing
 
-We're actively seeking contributors, especially:
-- **Framework adapter developers** who want to connect their favorite frameworks
-- **Enterprise developers** dealing with multi-framework complexity  
-- **Security experts** passionate about transparent, auditable AI systems
-- **Go developers** excited about distributed systems and Kubernetes
+We're actively seeking contributors for A2A protocol implementation:
+
+**Scope**: A2A protocol compliance, agent communication, discovery mechanisms  
+**Out of Scope**: Avatar interface implementations, UI components, proprietary integrations
+
+### Development Focus Areas
+- **A2A Protocol Implementation** - JSON-RPC 2.0 client and method handlers
+- **AgentCard Discovery** - Agent discovery and capability parsing
+- **Streaming Integration** - Server-Sent Events for real-time updates
+- **kagent Integration** - Reference A2A implementation testing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## 🗺️ Development Roadmap
 
-### Phase 1: Foundation & Research (Weeks 1-2) 🔄 *Current Phase*
-- ✅ Framework-agnostic architecture design
-- ✅ Community building strategy
-- 🔄 kagent adapter specification
-- 🔄 AAMI integration planning
+### Phase 1: A2A Protocol Foundation (Weeks 1-2) 🔄 *Current Phase*
+- A2A protocol specification analysis and documentation
+- AgentCard discovery and parsing system implementation
+- JSON-RPC 2.0 client with basic A2A method support
+- Agent lifecycle management via A2A protocol
 
-### Phase 2: Core Infrastructure (Weeks 3-5)
-- Core openribcage engine implementation
-- kagent reference adapter
-- Basic AAMI integration layer
-- Kubernetes packaging
+### Phase 2: Core A2A Client (Weeks 3-5)
+- Complete A2A method implementation (`message/send`, `message/stream`, etc.)
+- Real-time streaming via Server-Sent Events
+- kagent A2A endpoint integration and testing
+- Agent registry and health monitoring
 
-### Phase 3: Multi-Framework Support (Weeks 6-8)
-- n8n framework adapter
-- CrewAI framework adapter  
-- LangGraph framework adapter
-- Cross-framework coordination testing
+### Phase 3: Multi-Agent Orchestration (Weeks 6-8)
+- Multi-agent discovery and coordination via A2A protocol
+- Agent capability mapping and routing
+- Cross-agent communication patterns
+- A2A protocol compliance testing across frameworks
 
-### Phase 4: Production Readiness (Weeks 9-12)
-- Management dashboard
-- Security hardening
-- Performance optimization
-- Comprehensive testing
+### Phase 4: Avatar Interface Integration (Weeks 9-12)
+- AgentCard to avatar persona mapping system
+- Dynamic UI adaptation based on agent capabilities
+- Real-time avatar updates from A2A streams
+- Avatar interface API and integration patterns
 
-## 🔒 Security & Enterprise Features
+### Phase 5: Production Deployment (Weeks 13-15)
+- End-to-end A2A protocol integration testing
+- Performance optimization and connection pooling
+- Kubernetes packaging and deployment patterns
+- Production observability and monitoring
 
-openribcage integrates with [Agent Gateway](https://agentgateway.dev/) for enterprise-grade security:
-- **Credential inheritance and access control**
-- **Cross-framework authentication**
-- **Comprehensive audit logging**
-- **Compliance framework support**
+### Phase 6: Enterprise Scale (Future)
+- [Agent Gateway](https://agentgateway.dev/) integration for enterprise data plane
+- Federated agent discovery across environments
+- Enterprise security with RBAC and audit logging
+- Advanced multi-agent coordination patterns
 
-## 🌟 Why Framework-Agnostic?
+## 🔒 A2A Protocol Security
 
-- **Avoid Vendor Lock-in**: Choose frameworks based on capability, not limitation
-- **Mix and Match**: Use kagent for infrastructure + CrewAI for business processes
-- **Future-Proof**: Add new frameworks without rebuilding coordination logic
-- **Transparency**: Always understand what's happening across your entire agent ecosystem
+openribcage implements standard A2A protocol security patterns:
+- **HTTP Authentication**: Bearer tokens, API keys, OAuth2
+- **Agent Gateway Integration**: Enterprise-grade security for agent communication
+- **TLS/HTTPS**: Secure transport for all A2A protocol communication
+- **AgentCard Validation**: Schema validation and security scanning
+
+## 🌟 Why A2A Protocol?
+
+- **Industry Standard**: Google-backed, mature protocol specification
+- **Framework Agnostic**: Works with any A2A-compliant agent framework  
+- **Future-Proof**: New frameworks adopting A2A automatically compatible
+- **Enterprise Ready**: Built-in authentication, streaming, task management
+- **Avatar Optimized**: Perfect foundation for avatar-based agent interfaces
 
 ## 📖 Documentation
 
-- **[Architecture Guide](docs/architecture.md)** - Deep dive into openribcage design (coming soon)
-- **[Security Patterns](docs/security.md)** - Agent Gateway integration (coming soon)
-- **[Framework Adapters](docs/adapters/)** - Building framework connectors (coming soon)
-- **[API Reference](docs/api.md)** - Complete API documentation (coming soon)
+- **[A2A Protocol Guide](docs/a2a-protocol.md)** - Complete A2A implementation guide
+- **[Agent Discovery](docs/agent-discovery.md)** - AgentCard discovery and parsing
+- **[Avatar Integration](docs/avatar-integration.md)** - Avatar interface patterns
+- **[kagent Integration](docs/examples/kagent.md)** - kagent A2A testing guide
 
 ## 🎯 Community & Support
 
 - **💬 Discord**: [Join our community](https://discord.gg/craine-io)
-- **🐛 Issues**: [Report bugs or request features](https://github.com/craineboss/openribcage/issues)
-- **📧 Email**: [contact@craine.io](mailto:contact@craine.io)
-- **📚 Documentation**: [docs.craine.io](https://docs.craine.io) (coming soon)
+- **🐛 Issues**: [Report bugs or request features](https://github.com/craine-io/openribcage/issues)
+- **📚 Documentation**: [A2A Protocol Docs](https://github.com/google-a2a/A2A)
+- **🤝 Contributing**: [Development Guidelines](CONTRIBUTING.md)
 
 ## 🔮 The Vision
 
-A world where coordinating AI agents feels as natural as managing human teams, where framework choice enhances rather than constrains your capabilities, and where transparency builds trust in autonomous systems.
-
-When your infrastructure agents (kagent) can seamlessly collaborate with your business process agents (CrewAI) and your workflow agents (n8n), all coordinated through natural conversation with avatar interfaces—that's the future openribcage enables.
+Transform complex multi-agent coordination into natural conversation through A2A protocol compliance and avatar-based interfaces. When your infrastructure agents (kagent) can seamlessly collaborate with your business process agents (CrewAI) and workflow agents (LangGraph)—all through standardized A2A communication and natural avatar interfaces—that's the future openribcage enables.
 
 ## 📄 License
 
@@ -192,12 +259,15 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## 🙏 Acknowledgments
 
-- [Solo.io](https://solo.io) for kagent framework collaboration
-- [Agent Gateway](https://agentgateway.dev/) for security pattern inspiration
-- The broader open source AI agent framework community
+- **Google** for the Agent2Agent (A2A) protocol specification
+- **Solo.io** for kagent framework and A2A implementation
+- **Agent Gateway** for enterprise security pattern inspiration
+- **The open-source AI agent community** for A2A protocol adoption
 
 ---
 
-**Ready to crack open the ribcage and see how AI agents really work?** Join us in building the universal coordination layer for the agent ecosystem.
+## 🚀 Ready to Build A2A Protocol Client?
 
-**[Get Involved →](CONTRIBUTING.md)** | **[Join Discord →](https://discord.gg/craine-io)** | **[Read Strategy →](https://github.com/craine-io/project-openribcage/blob/main/strategy/community-building-strategy.md)**
+**A2A Protocol Client Foundation**: JSON-RPC 2.0 + AgentCard Discovery + Avatar Integration
+
+**[Get Started →](CONTRIBUTING.md)** | **[Join Discord →](https://discord.gg/craine-io)** | **[View Issues →](https://github.com/craine-io/project-openribcage/issues)**
