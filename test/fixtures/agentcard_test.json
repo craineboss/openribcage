@@ -1,0 +1,59 @@
+{
+  "name": "test-agent",
+  "description": "Test agent for openribcage integration testing",
+  "version": "1.0.0",
+  "capabilities": [
+    "testing",
+    "validation",
+    "mock-responses"
+  ],
+  "endpoints": [
+    {
+      "type": "a2a",
+      "url": "http://localhost:8080/api/a2a/test/test-agent",
+      "methods": [
+        "tasks/send",
+        "tasks/status",
+        "tasks/cancel",
+        "message/send"
+      ],
+      "description": "A2A protocol endpoint for testing"
+    },
+    {
+      "type": "streaming",
+      "url": "http://localhost:8080/api/a2a/test/test-agent/stream",
+      "methods": [
+        "tasks/sendSubscribe",
+        "message/stream"
+      ],
+      "description": "Server-Sent Events streaming endpoint"
+    }
+  ],
+  "metadata": {
+    "framework": "openribcage-test",
+    "language": "go",
+    "test_mode": true,
+    "mock_responses": {
+      "tasks/send": {
+        "success": {
+          "id": "{{request.id}}",
+          "status": "completed",
+          "message": {
+            "role": "assistant",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Test response from mock agent"
+              }
+            ]
+          }
+        },
+        "error": {
+          "code": -32603,
+          "message": "Mock internal error",
+          "data": "This is a test error response"
+        }
+      }
+    }
+  }
+}
