@@ -96,7 +96,6 @@ run:
       - examples
     exclude-files:
       - ".*\.pb\.go$"
-
 output:
   formats:
     - format: colored-line-number
