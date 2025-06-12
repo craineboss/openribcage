@@ -95,8 +95,7 @@ run:
       - docs
       - examples
     exclude-files:
-      - ".*\\.pb\\.go$"
-
+      - ".*\.pb\.go$"
 output:
   formats:
     - format: colored-line-number
@@ -105,7 +104,7 @@ output:
 
 issues:
   exclude-rules:
-    - path: _test\\.go
+    - path: _test\.go
       linters:
         - mnd
         - funlen
