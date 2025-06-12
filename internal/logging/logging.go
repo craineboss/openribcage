@@ -5,6 +5,7 @@
 package logging
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -46,7 +47,7 @@ func NewLogger(level, format, output string) (*Logger, error) {
 			ForceColors:     false,
 		})
 	default:
-		return nil, logrus.NewEntry(logger).Errorf("unsupported log format: %s", format)
+		return nil, fmt.Errorf("unsupported log format: %s", format)
 	}
 
 	// Set output destination
