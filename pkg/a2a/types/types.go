@@ -82,21 +82,21 @@ type FilePart struct {
 
 // StreamResponse represents a streaming response from an A2A agent
 type StreamResponse struct {
-	ID        string    `json:"id"`
-	Timestamp time.Time `json:"timestamp"`
-	Type      string    `json:"type"`
+	ID        string      `json:"id"`
+	Timestamp time.Time   `json:"timestamp"`
+	Type      string      `json:"type"`
 	Data      interface{} `json:"data"`
-	Done      bool      `json:"done,omitempty"`
+	Done      bool        `json:"done,omitempty"`
 }
 
 // AgentCard represents an A2A agent card (.well-known/agent.json)
 type AgentCard struct {
-	Name         string       `json:"name"`
-	Description  string       `json:"description"`
-	Version      string       `json:"version"`
-	Capabilities []string     `json:"capabilities"`
-	Endpoints    []Endpoint   `json:"endpoints"`
-	Metadata     interface{}  `json:"metadata,omitempty"`
+	Name         string      `json:"name"`
+	Description  string      `json:"description"`
+	Version      string      `json:"version"`
+	Capabilities []string    `json:"capabilities"`
+	Endpoints    []Endpoint  `json:"endpoints"`
+	Metadata     interface{} `json:"metadata,omitempty"`
 }
 
 // Endpoint represents an A2A agent endpoint
@@ -123,20 +123,20 @@ type Agent struct {
 type AgentStatus string
 
 const (
-	AgentStatusOnline    AgentStatus = "online"
-	AgentStatusOffline   AgentStatus = "offline"
-	AgentStatusError     AgentStatus = "error"
+	AgentStatusOnline      AgentStatus = "online"
+	AgentStatusOffline     AgentStatus = "offline"
+	AgentStatusError       AgentStatus = "error"
 	AgentStatusDiscovering AgentStatus = "discovering"
 )
 
 // A2AMethods contains the standard A2A protocol methods
 var A2AMethods = struct {
-	TasksSend       string
-	TasksStream     string
-	TasksStatus     string
-	TasksCancel     string
-	MessageSend     string
-	MessageStream   string
+	TasksSend     string
+	TasksStream   string
+	TasksStatus   string
+	TasksCancel   string
+	MessageSend   string
+	MessageStream string
 }{
 	TasksSend:     "tasks/send",
 	TasksStream:   "tasks/sendSubscribe",
