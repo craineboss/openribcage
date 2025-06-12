@@ -8,7 +8,10 @@ linters-settings:
     lines: 100
     statements: 50
   gci:
-    local-prefixes: github.com/craine-io/openribcage
+    sections:
+      - standard
+      - default
+      - prefix(github.com/craine-io/openribcage)
   goconst:
     min-len: 2
     min-occurrences: 2
@@ -29,18 +32,15 @@ linters-settings:
     min-complexity: 15
   goimports:
     local-prefixes: github.com/craine-io/openribcage
-  golint:
-    min-confidence: 0
-  gomnd:
+  mnd:
     settings:
       mnd:
         checks: argument,case,condition,operation,return,assign
   govet:
-    check-shadowing: true
+    enable:
+      - shadow
   lll:
     line-length: 140
-  maligned:
-    suggest-new: true
   misspell:
     locale: US
   nolintlint:
@@ -53,7 +53,6 @@ linters:
   disable-all: true
   enable:
     - bodyclose
-    - deadcode
     - depguard
     - dogsled
     - dupl
@@ -65,43 +64,42 @@ linters:
     - gocyclo
     - gofmt
     - goimports
-    - golint
-    - gomnd
+    - mnd
     - goprintffuncname
     - gosec
     - gosimple
     - govet
     - ineffassign
-    - interfacer
     - lll
     - misspell
     - nakedret
     - noctx
     - nolintlint
+    - revive
     - rowserrcheck
     - staticcheck
-    - structcheck
     - stylecheck
     - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
     - whitespace
 
 run:
   timeout: 5m
   issues-exit-code: 1
   tests: true
-  skip-dirs:
-    - vendor
-    - docs
-    - examples
-  skip-files:
-    - ".*\\.pb\\.go$"
+  issues:
+    exclude-dirs:
+      - vendor
+      - docs
+      - examples
+    exclude-files:
+      - ".*\\.pb\\.go$"
 
 output:
-  format: colored-line-number
+  formats:
+    - format: colored-line-number
   print-issued-lines: true
   print-linter-name: true
 
@@ -109,7 +107,7 @@ issues:
   exclude-rules:
     - path: _test\\.go
       linters:
-        - gomnd
+        - mnd
         - funlen
         - goconst
         - gocyclo

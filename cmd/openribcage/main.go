@@ -7,14 +7,18 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
 
 	"github.com/craine-io/openribcage/internal/config"
 	"github.com/craine-io/openribcage/pkg/a2a/client"
+	"github.com/craine-io/openribcage/pkg/agentcard"
 )
 
 var (
@@ -26,6 +30,9 @@ var (
 	// Global flags
 	configFile string
 	verbose    bool
+
+	// Discovery flags
+	discoveryTimeout time.Duration
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -55,21 +62,43 @@ var discoverCmd = &cobra.Command{
 	Use:   "discover [agent-url]",
 	Short: "Discover A2A agents and their capabilities",
 	Long: `Discover A2A-compliant agents by scanning for AgentCard endpoints
-and parsing their capabilities. Can discover single agents or scan
-multiple endpoints for agent registry building.`,
-	Args: cobra.MaximumNArgs(1),
+and parsing their capabilities. Returns agent information in JSON format.
+
+Examples:
+  # Discover a single agent
+  openribcage discover http://localhost:8083/api/a2a/kagent/k8s-agent
+  
+  # Discover with verbose logging
+  openribcage discover -v http://localhost:8083/api/a2a/kagent/k8s-agent`,
+	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		logrus.Info("Starting A2A agent discovery...")
-		
-		// TODO: Implement agent discovery
-		// This will be implemented in Issue #3
-		if len(args) > 0 {
-			logrus.Infof("Discovering agent at: %s", args[0])
-		} else {
-			logrus.Info("Scanning for agents...")
+		agentURL := args[0]
+
+		logrus.Infof("Discovering A2A agent at: %s", agentURL)
+
+		// Create AgentCard discoverer
+		discoverer := agentcard.NewDiscoverer(discoveryTimeout)
+
+		// Create context with timeout
+		ctx, cancel := context.WithTimeout(context.Background(), discoveryTimeout)
+		defer cancel()
+
+		// Discover the agent
+		card, err := discoverer.Discover(ctx, agentURL)
+		if err != nil {
+			logrus.Errorf("Agent discovery failed: %v", err)
+			os.Exit(1)
 		}
-		
-		fmt.Println("Agent discovery functionality coming in Issue #3!")
+
+		// Output AgentCard as JSON
+		output, err := json.MarshalIndent(card, "", "  ")
+		if err != nil {
+			logrus.Errorf("Failed to marshal AgentCard to JSON: %v", err)
+			os.Exit(1)
+		}
+
+		fmt.Println(string(output))
+		logrus.Infof("Successfully discovered agent: %s (version: %s)", card.Name, card.Version)
 	},
 }
 
@@ -83,10 +112,10 @@ Supports both single messages and streaming communication patterns.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		agentURL := args[0]
 		message := args[1]
-		
+
 		logrus.Infof("Communicating with agent: %s", agentURL)
 		logrus.Infof("Message: %s", message)
-		
+
 		// TODO: Implement A2A communication
 		// This will be implemented in Issue #4 and #10
 		fmt.Println("A2A communication functionality coming in Issue #10!")
@@ -102,7 +131,7 @@ for avatar interfaces. Exposes REST API and WebSocket endpoints
 for real-time agent communication.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		logrus.Info("Starting openribcage A2A client server...")
-		
+
 		// TODO: Implement server mode
 		// This will provide API for avatar interfaces
 		fmt.Println("Server mode functionality coming in Phase 2!")
@@ -113,6 +142,9 @@ func init() {
 	// Global flags
 	rootCmd.PersistentFlags().StringVar(&configFile, "config", "", "config file (default is $HOME/.openribcage.yaml)")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
+
+	// Discovery command flags
+	discoverCmd.Flags().DurationVar(&discoveryTimeout, "timeout", 30*time.Second, "discovery timeout duration")
 
 	// Add subcommands
 	rootCmd.AddCommand(discoverCmd)
@@ -129,6 +161,11 @@ func main() {
 	// Initialize A2A client
 	if err := client.Init(); err != nil {
 		logrus.Fatalf("Failed to initialize A2A client: %v", err)
+	}
+
+	// Initialize AgentCard package
+	if err := agentcard.Init(); err != nil {
+		logrus.Fatalf("Failed to initialize AgentCard package: %v", err)
 	}
 
 	// Execute CLI

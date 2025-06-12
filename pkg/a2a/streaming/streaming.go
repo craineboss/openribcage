@@ -7,10 +7,8 @@ package streaming
 
 import (
 	"context"
-	"bufio"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
