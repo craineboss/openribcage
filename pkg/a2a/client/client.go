@@ -7,10 +7,16 @@
 package client
 
 import (
+	"bufio"
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
 	"github.com/craine-io/openribcage/pkg/a2a/types"
@@ -25,17 +31,20 @@ type Config struct {
 
 // Client represents an A2A protocol client
 type Client struct {
-	config Config
-	logger *logrus.Logger
+	config     Config
+	logger     *logrus.Logger
+	httpClient *http.Client
 	// TODO: Add HTTP client, connection pool, etc. in Issue #10
 }
 
 // New creates a new A2A protocol client
 func New(config Config) *Client {
-	// TODO: Implement full client initialization in Issue #10
 	return &Client{
 		config: config,
 		logger: logrus.New(),
+		httpClient: &http.Client{
+			Timeout: config.Timeout,
+		},
 	}
 }
 
@@ -58,18 +67,85 @@ func (c *Client) SendTask(ctx context.Context, agentID string, req *types.TaskRe
 }
 
 // StreamTask sends a task with streaming response
-// TODO: Implement in Issue #10  
 func (c *Client) StreamTask(ctx context.Context, agentID string, req *types.TaskRequest) (<-chan *types.StreamResponse, <-chan error) {
-	responseChan := make(chan *types.StreamResponse)
-	errorChan := make(chan error, 1)
-	
+	out := make(chan *types.StreamResponse)
+	errs := make(chan error, 1)
+
 	go func() {
-		defer close(responseChan)
-		defer close(errorChan)
-		errorChan <- fmt.Errorf("StreamTask not yet implemented - see Issue #10")
+		defer close(out)
+		defer close(errs)
+
+		// Construct the request URL
+		url := fmt.Sprintf("%s/%s", c.config.BaseURL, agentID)
+
+		// Create the JSON-RPC request
+		jsonReq := &types.JSONRPCRequest{
+			JSONRPC: "2.0",
+			Method:  types.A2AMethods.TasksStream,
+			Params: map[string]interface{}{
+				"id":      req.ID,
+				"message": req.Message,
+			},
+			ID: uuid.New().String(),
+		}
+
+		reqBody, err := json.Marshal(jsonReq)
+		if err != nil {
+			errs <- fmt.Errorf("failed to marshal request: %w", err)
+			return
+		}
+
+		httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(reqBody))
+		if err != nil {
+			errs <- fmt.Errorf("failed to create request: %w", err)
+			return
+		}
+
+		httpReq.Header.Set("Content-Type", "application/json")
+		httpReq.Header.Set("Accept", "text/event-stream")
+		for k, v := range c.config.Headers {
+			httpReq.Header.Set(k, v)
+		}
+
+		resp, err := c.httpClient.Do(httpReq)
+		if err != nil {
+			errs <- fmt.Errorf("request failed: %w", err)
+			return
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			errs <- fmt.Errorf("unexpected status: %s", resp.Status)
+			return
+		}
+
+		scanner := bufio.NewScanner(resp.Body)
+		for scanner.Scan() {
+			line := scanner.Text()
+			if strings.HasPrefix(line, "data:") {
+				data := strings.TrimSpace(strings.TrimPrefix(line, "data:"))
+				if data == "" {
+					continue
+				}
+				var streamResp types.StreamResponse
+				if err := json.Unmarshal([]byte(data), &streamResp); err != nil {
+					errs <- fmt.Errorf("failed to unmarshal stream response: %w", err)
+					return
+				}
+				select {
+				case out <- &streamResp:
+				case <-ctx.Done():
+					errs <- ctx.Err()
+					return
+				}
+			}
+		}
+		if err := scanner.Err(); err != nil {
+			errs <- fmt.Errorf("scanner error: %w", err)
+		}
 	}()
-	
-	return responseChan, errorChan
+
+	return out, errs
 }
 
 // GetTaskStatus retrieves the status of a task

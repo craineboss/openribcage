@@ -89,21 +89,13 @@ type StreamResponse struct {
 	Done      bool        `json:"done,omitempty"`
 }
 
-// AgentCapabilities represents the capabilities of an A2A agent
-// (matches kagent and A2A spec)
-type AgentCapabilities struct {
-	Streaming              bool `json:"streaming"`
-	PushNotifications      bool `json:"pushNotifications"`
-	StateTransitionHistory bool `json:"stateTransitionHistory"`
-}
-
 // AgentCard represents an A2A agent card (.well-known/agent.json)
 type AgentCard struct {
 	Name               string               `json:"name"`
 	Description        string               `json:"description"`
 	URL                string               `json:"url"`
 	Version            string               `json:"version"`
-	Capabilities       AgentCapabilities    `json:"capabilities"`
+	Capabilities       []string             `json:"capabilities"`
 	Authentication     *AgentAuthentication `json:"authentication,omitempty"`
 	DefaultInputModes  []string             `json:"defaultInputModes,omitempty"`
 	DefaultOutputModes []string             `json:"defaultOutputModes,omitempty"`

@@ -22,10 +22,10 @@ import (
 
 const (
 	// kagent sandbox configuration
-	kagentBaseURL = "http://localhost:8083/api/a2a"
+	kagentBaseURL   = "http://localhost:8083/api/a2a"
 	kagentNamespace = "kagent"
-	testAgent = "k8s-agent"
-	testTimeout = 30 * time.Second
+	testAgent       = "k8s-agent"
+	testTimeout     = 30 * time.Second
 )
 
 // TestA2AProtocolCompliance tests basic A2A protocol compliance
@@ -55,13 +55,11 @@ func TestA2AProtocolCompliance(t *testing.T) {
 		},
 	}
 
-	// TODO: Implement when Issue #10 is complete
-	// response, err := a2aClient.SendTask(ctx, testAgent, taskRequest)
-	// require.NoError(t, err)
-	// assert.NotNil(t, response)
-	// assert.Equal(t, taskRequest.ID, response.ID)
-
-	t.Skip("A2A client implementation pending Issue #10")
+	t.Log("Sending task to agent...")
+	response, err := a2aClient.SendTask(ctx, testAgent, taskRequest)
+	require.NoError(t, err)
+	assert.NotNil(t, response)
+	assert.Equal(t, taskRequest.ID, response.ID)
 }
 
 // TestAgentCardDiscovery tests AgentCard discovery functionality
@@ -75,15 +73,13 @@ func TestAgentCardDiscovery(t *testing.T) {
 	// Test discovery
 	agentURL := kagentBaseURL + "/" + kagentNamespace + "/" + testAgent
 
-	// TODO: Implement when Issue #3 is complete
-	// card, err := discoverer.Discover(ctx, agentURL)
-	// require.NoError(t, err)
-	// assert.NotNil(t, card)
-	// assert.Equal(t, testAgent, card.Name)
-	// assert.NotEmpty(t, card.Capabilities)
-	// assert.NotEmpty(t, card.Endpoints)
-
-	t.Skip("AgentCard discovery implementation pending Issue #3")
+	t.Log("Discovering AgentCard...")
+	card, err := discoverer.Discover(ctx, agentURL)
+	require.NoError(t, err)
+	assert.NotNil(t, card)
+	assert.Equal(t, testAgent, card.Name)
+	assert.NotEmpty(t, card.Capabilities)
+	assert.NotEmpty(t, card.Endpoints)
 }
 
 // TestA2AStreaming tests Server-Sent Events streaming
@@ -113,26 +109,23 @@ func TestA2AStreaming(t *testing.T) {
 		},
 	}
 
-	// TODO: Implement when Issue #10 is complete
-	// streamChan, errChan := a2aClient.StreamTask(ctx, testAgent, taskRequest)
-	// 
-	// select {
-	// case update := <-streamChan:
-	//     assert.NotNil(t, update)
-	//     assert.Equal(t, taskRequest.ID, update.ID)
-	// case err := <-errChan:
-	//     t.Fatalf("Stream error: %v", err)
-	// case <-ctx.Done():
-	//     t.Fatal("Test timeout")
-	// }
-
-	t.Skip("A2A streaming implementation pending Issue #10")
+	t.Log("Starting streaming task...")
+	streamChan, errChan := a2aClient.StreamTask(ctx, testAgent, taskRequest)
+	select {
+	case update := <-streamChan:
+		assert.NotNil(t, update)
+		assert.Equal(t, taskRequest.ID, update.ID)
+	case err := <-errChan:
+		t.Fatalf("Stream error: %v", err)
+	case <-ctx.Done():
+		t.Fatal("Test timeout")
+	}
 }
 
 // TestMultipleAgents tests communication with multiple kagent agents
 func TestMultipleAgents(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), testTimeout)
-	defer cancel()
+	// ctx, cancel := context.WithTimeout(context.Background(), testTimeout)
+	// defer cancel()
 
 	// List of kagent agents to test
 	testAgents := []string{
@@ -143,27 +136,22 @@ func TestMultipleAgents(t *testing.T) {
 	}
 
 	// Create A2A client
-	clientConfig := client.Config{
-		BaseURL: kagentBaseURL,
-		Timeout: testTimeout,
-		Headers: make(map[string]string),
-	}
-	a2aClient := client.New(clientConfig)
+	// clientConfig := client.Config{
+	// 	BaseURL: kagentBaseURL,
+	// 	Timeout: testTimeout,
+	// 	Headers: make(map[string]string),
+	// }
+	// a2aClient := client.New(clientConfig)
 
 	for _, agentName := range testAgents {
 		t.Run(agentName, func(t *testing.T) {
-			taskRequest := &types.TaskRequest{
-				ID: "multi-agent-test-" + agentName + "-" + time.Now().Format("150405"),
-				Message: &types.Message{
-					Role: "user",
-					Parts: []types.Part{
-						{
-							Type: "text",
-							Text: "Hello, please provide your status",
-						},
-					},
-				},
-			}
+			// taskRequest := &types.TaskRequest{
+			// 	ID: "multi-agent-test-" + agentName + "-" + time.Now().Format("150405"),
+			// 	Message: &types.Message{
+			// 		Role: "user",
+			// 		Parts: []types.Part{{Type: "text", Text: "Hello, please provide your status"}},
+			// 	},
+			// }
 
 			// TODO: Implement when Issue #10 is complete
 			// response, err := a2aClient.SendTask(ctx, agentName, taskRequest)
@@ -178,30 +166,25 @@ func TestMultipleAgents(t *testing.T) {
 
 // TestA2AErrorHandling tests error handling scenarios
 func TestA2AErrorHandling(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), testTimeout)
-	defer cancel()
+	// ctx, cancel := context.WithTimeout(context.Background(), testTimeout)
+	// defer cancel()
 
 	// Create A2A client
-	clientConfig := client.Config{
-		BaseURL: kagentBaseURL,
-		Timeout: testTimeout,
-		Headers: make(map[string]string),
-	}
-	a2aClient := client.New(clientConfig)
+	// clientConfig := client.Config{
+	// 	BaseURL: kagentBaseURL,
+	// 	Timeout: testTimeout,
+	// 	Headers: make(map[string]string),
+	// }
+	// a2aClient := client.New(clientConfig)
 
 	// Test with non-existent agent
-	taskRequest := &types.TaskRequest{
-		ID: "error-test-" + time.Now().Format("20060102-150405"),
-		Message: &types.Message{
-			Role: "user",
-			Parts: []types.Part{
-				{
-					Type: "text",
-					Text: "Test message",
-				},
-			},
-		},
-	}
+	// taskRequest := &types.TaskRequest{
+	// 	ID: "error-test-" + time.Now().Format("20060102-150405"),
+	// 	Message: &types.Message{
+	// 		Role: "user",
+	// 		Parts: []types.Part{{Type: "text", Text: "Test message"}},
+	// 	},
+	// }
 
 	// TODO: Implement when Issue #10 is complete
 	// response, err := a2aClient.SendTask(ctx, "non-existent-agent", taskRequest)
