@@ -89,27 +89,53 @@ type StreamResponse struct {
 	Done      bool        `json:"done,omitempty"`
 }
 
-// AgentCapabilities represents the capabilities of an A2A agent
-// (matches kagent and A2A spec)
-type AgentCapabilities struct {
-	Streaming              bool `json:"streaming"`
-	PushNotifications      bool `json:"pushNotifications"`
-	StateTransitionHistory bool `json:"stateTransitionHistory"`
-}
-
 // AgentCard represents an A2A agent card (.well-known/agent.json)
 type AgentCard struct {
 	Name               string               `json:"name"`
 	Description        string               `json:"description"`
 	URL                string               `json:"url"`
 	Version            string               `json:"version"`
-	Capabilities       AgentCapabilities    `json:"capabilities"`
+	Capabilities       interface{}          `json:"capabilities"`
 	Authentication     *AgentAuthentication `json:"authentication,omitempty"`
 	DefaultInputModes  []string             `json:"defaultInputModes,omitempty"`
 	DefaultOutputModes []string             `json:"defaultOutputModes,omitempty"`
 	Skills             []AgentSkill         `json:"skills,omitempty"`
 	Endpoints          []Endpoint           `json:"endpoints,omitempty"`
 	Metadata           interface{}          `json:"metadata,omitempty"`
+}
+
+// GetCapabilities normalizes the Capabilities field to a []string, supporting both array and object formats.
+func (ac *AgentCard) GetCapabilities() []string {
+	switch caps := ac.Capabilities.(type) {
+	case []interface{}:
+		var result []string
+		for _, cap := range caps {
+			if str, ok := cap.(string); ok {
+				result = append(result, str)
+			}
+		}
+		return result
+	case []string:
+		return caps
+	case map[string]interface{}:
+		var result []string
+		for cap, enabled := range caps {
+			if b, ok := enabled.(bool); ok && b {
+				result = append(result, cap)
+			}
+		}
+		return result
+	case map[string]bool:
+		var result []string
+		for cap, enabled := range caps {
+			if enabled {
+				result = append(result, cap)
+			}
+		}
+		return result
+	default:
+		return []string{}
+	}
 }
 
 // Endpoint represents an A2A agent endpoint

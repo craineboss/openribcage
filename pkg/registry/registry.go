@@ -100,11 +100,12 @@ func (r *Registry) FindByCapability(capability string) []*types.Agent {
 	var matches []*types.Agent
 	for _, agent := range r.agents {
 		if agent.Card != nil {
-			caps := agent.Card.Capabilities
-			if (capability == "streaming" && caps.Streaming) ||
-				(capability == "pushNotifications" && caps.PushNotifications) ||
-				(capability == "stateTransitionHistory" && caps.StateTransitionHistory) {
-				matches = append(matches, agent)
+			caps := agent.Card.GetCapabilities()
+			for _, cap := range caps {
+				if cap == capability {
+					matches = append(matches, agent)
+					break
+				}
 			}
 		}
 	}
