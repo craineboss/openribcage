@@ -78,7 +78,7 @@ func TestAgentCardDiscovery(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotNil(t, card)
 	assert.Equal(t, testAgent, card.Name)
-	assert.NotEmpty(t, card.Capabilities)
+	assert.NotEmpty(t, card.GetCapabilities())
 	assert.NotEmpty(t, card.Endpoints)
 }
 
