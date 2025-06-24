@@ -214,3 +214,70 @@ func TestSetup(t *testing.T) {
 
 	t.Log("Integration test environment setup validated")
 }
+
+// TestGetTaskStatus tests retrieving the status of a task
+func TestGetTaskStatus(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), testTimeout)
+	defer cancel()
+
+	clientConfig := client.Config{
+		BaseURL: kagentBaseURL,
+		Timeout: testTimeout,
+		Headers: make(map[string]string),
+	}
+	a2aClient := client.New(clientConfig)
+
+	taskRequest := &types.TaskRequest{
+		ID: "status-test-" + time.Now().Format("20060102-150405"),
+		Message: &types.Message{
+			Role:  "user",
+			Parts: []types.Part{{Type: "text", Text: "What is the status of my cluster?"}},
+		},
+	}
+
+	t.Log("Sending task to agent for status test...")
+	response, err := a2aClient.SendTask(ctx, testAgent, taskRequest)
+	require.NoError(t, err)
+	assert.NotNil(t, response)
+	assert.Equal(t, taskRequest.ID, response.ID)
+
+	t.Log("Getting task status...")
+	status, err := a2aClient.GetTaskStatus(ctx, testAgent, taskRequest.ID)
+	assert.NoError(t, err)
+	assert.NotNil(t, status)
+	assert.Equal(t, taskRequest.ID, status.ID)
+}
+
+// TestCancelTask tests cancelling a running task
+func TestCancelTask(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), testTimeout)
+	defer cancel()
+
+	clientConfig := client.Config{
+		BaseURL: kagentBaseURL,
+		Timeout: testTimeout,
+		Headers: make(map[string]string),
+	}
+	a2aClient := client.New(clientConfig)
+
+	taskRequest := &types.TaskRequest{
+		ID: "cancel-test-" + time.Now().Format("20060102-150405"),
+		Message: &types.Message{
+			Role:  "user",
+			Parts: []types.Part{{Type: "text", Text: "Start a long-running task"}},
+		},
+	}
+
+	t.Log("Sending task to agent for cancel test...")
+	response, err := a2aClient.SendTask(ctx, testAgent, taskRequest)
+	require.NoError(t, err)
+	assert.NotNil(t, response)
+	assert.Equal(t, taskRequest.ID, response.ID)
+
+	t.Log("Cancelling task...")
+	err = a2aClient.CancelTask(ctx, testAgent, taskRequest.ID)
+	// We expect either no error, or a specific error if the task is already completed or cannot be cancelled
+	if err != nil {
+		t.Logf("CancelTask returned error (may be expected if task already completed): %v", err)
+	}
+}

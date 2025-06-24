@@ -61,9 +61,60 @@ func Init() error {
 }
 
 // SendTask sends a task to an A2A agent
-// TODO: Implement in Issue #10
 func (c *Client) SendTask(ctx context.Context, agentID string, req *types.TaskRequest) (*types.TaskResponse, error) {
-	return nil, fmt.Errorf("SendTask not yet implemented - see Issue #10")
+	url := fmt.Sprintf("%s/%s", c.config.BaseURL, agentID)
+
+	jsonReq := &types.JSONRPCRequest{
+		JSONRPC: "2.0",
+		Method:  types.A2AMethods.TasksSend,
+		Params: map[string]interface{}{
+			"id":      req.ID,
+			"message": req.Message,
+		},
+		ID: uuid.New().String(),
+	}
+
+	reqBody, err := json.Marshal(jsonReq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request: %w", err)
+	}
+
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(reqBody))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("Accept", "application/json")
+	for k, v := range c.config.Headers {
+		httpReq.Header.Set(k, v)
+	}
+
+	resp, err := c.httpClient.Do(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status: %s", resp.Status)
+	}
+
+	var jsonResp types.JSONRPCResponse
+	if err := json.NewDecoder(resp.Body).Decode(&jsonResp); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	if jsonResp.Error != nil {
+		return nil, fmt.Errorf("A2A error %d: %s", jsonResp.Error.Code, jsonResp.Error.Message)
+	}
+
+	var taskResp types.TaskResponse
+	if err := json.Unmarshal(jsonResp.Result, &taskResp); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal task response: %w", err)
+	}
+
+	return &taskResp, nil
 }
 
 // StreamTask sends a task with streaming response
@@ -149,15 +200,108 @@ func (c *Client) StreamTask(ctx context.Context, agentID string, req *types.Task
 }
 
 // GetTaskStatus retrieves the status of a task
-// TODO: Implement in Issue #10
 func (c *Client) GetTaskStatus(ctx context.Context, agentID, taskID string) (*types.TaskStatus, error) {
-	return nil, fmt.Errorf("GetTaskStatus not yet implemented - see Issue #10")
+	url := fmt.Sprintf("%s/%s", c.config.BaseURL, agentID)
+	jsonReq := &types.JSONRPCRequest{
+		JSONRPC: "2.0",
+		Method:  types.A2AMethods.TasksStatus,
+		Params: map[string]interface{}{
+			"id": taskID,
+		},
+		ID: uuid.New().String(),
+	}
+
+	reqBody, err := json.Marshal(jsonReq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request: %w", err)
+	}
+
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(reqBody))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("Accept", "application/json")
+	for k, v := range c.config.Headers {
+		httpReq.Header.Set(k, v)
+	}
+
+	resp, err := c.httpClient.Do(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status: %s", resp.Status)
+	}
+
+	var jsonResp types.JSONRPCResponse
+	if err := json.NewDecoder(resp.Body).Decode(&jsonResp); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	if jsonResp.Error != nil {
+		return nil, fmt.Errorf("A2A error %d: %s", jsonResp.Error.Code, jsonResp.Error.Message)
+	}
+
+	var status types.TaskStatus
+	if err := json.Unmarshal(jsonResp.Result, &status); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal task status: %w", err)
+	}
+
+	return &status, nil
 }
 
 // CancelTask cancels a running task
-// TODO: Implement in Issue #10
 func (c *Client) CancelTask(ctx context.Context, agentID, taskID string) error {
-	return fmt.Errorf("CancelTask not yet implemented - see Issue #10")
+	url := fmt.Sprintf("%s/%s", c.config.BaseURL, agentID)
+	jsonReq := &types.JSONRPCRequest{
+		JSONRPC: "2.0",
+		Method:  types.A2AMethods.TasksCancel,
+		Params: map[string]interface{}{
+			"id": taskID,
+		},
+		ID: uuid.New().String(),
+	}
+
+	reqBody, err := json.Marshal(jsonReq)
+	if err != nil {
+		return fmt.Errorf("failed to marshal request: %w", err)
+	}
+
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(reqBody))
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
+	}
+
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("Accept", "application/json")
+	for k, v := range c.config.Headers {
+		httpReq.Header.Set(k, v)
+	}
+
+	resp, err := c.httpClient.Do(httpReq)
+	if err != nil {
+		return fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status: %s", resp.Status)
+	}
+
+	var jsonResp types.JSONRPCResponse
+	if err := json.NewDecoder(resp.Body).Decode(&jsonResp); err != nil {
+		return fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	if jsonResp.Error != nil {
+		return fmt.Errorf("A2A error %d: %s", jsonResp.Error.Code, jsonResp.Error.Message)
+	}
+
+	return nil
 }
 
 // Ping tests connectivity to an A2A agent
