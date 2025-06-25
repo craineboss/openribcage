@@ -44,6 +44,11 @@ func New(config Config) *Client {
 		logger: logrus.New(),
 		httpClient: &http.Client{
 			Timeout: config.Timeout,
+			Transport: &http.Transport{
+				MaxIdleConns:        100,
+				MaxIdleConnsPerHost: 10,
+				IdleConnTimeout:     90 * time.Second,
+			},
 		},
 	}
 }
@@ -51,19 +56,76 @@ func New(config Config) *Client {
 // Init initializes the A2A client package
 // This function is called from cmd/openribcage/main.go
 func Init() error {
-	// TODO: Implement package initialization in Issue #10
-	// This might include:
-	// - Setting up default configurations
-	// - Initializing connection pools
-	// - Registering A2A method handlers
-	logrus.Debug("A2A client package initialized (scaffolding)")
+	logrus.Debug("A2A client package initialized")
 	return nil
+}
+
+// SendMessage sends a message to an A2A agent
+func (c *Client) SendMessage(ctx context.Context, agentID string, message *types.Message) (*types.TaskResponse, error) {
+	// Construct the request URL
+	url := fmt.Sprintf("%s/%s", c.config.BaseURL, agentID)
+
+	// Create the JSON-RPC request
+	req := &types.JSONRPCRequest{
+		JSONRPC: "2.0",
+		Method:  types.A2AMethods.MessageSend,
+		Params: map[string]interface{}{
+			"message": message,
+		},
+		ID: uuid.New().String(),
+	}
+
+	// Marshal the request to JSON
+	reqBody, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request: %w", err)
+	}
+
+	// Create HTTP request
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(reqBody))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	// Set headers
+	httpReq.Header.Set("Content-Type", "application/json")
+	for k, v := range c.config.Headers {
+		httpReq.Header.Set(k, v)
+	}
+
+	// Send the request
+	resp, err := c.httpClient.Do(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	// Read and parse response
+	var jsonResp types.JSONRPCResponse
+	if err := json.NewDecoder(resp.Body).Decode(&jsonResp); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	// Check for JSON-RPC error
+	if jsonResp.Error != nil {
+		return nil, fmt.Errorf("JSON-RPC error: %s (code: %d)", jsonResp.Error.Message, jsonResp.Error.Code)
+	}
+
+	// Parse the result into a TaskResponse
+	var taskResp types.TaskResponse
+	if err := json.Unmarshal(jsonResp.Result, &taskResp); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal task response: %w", err)
+	}
+
+	return &taskResp, nil
 }
 
 // SendTask sends a task to an A2A agent
 func (c *Client) SendTask(ctx context.Context, agentID string, req *types.TaskRequest) (*types.TaskResponse, error) {
+	// Construct the request URL
 	url := fmt.Sprintf("%s/%s", c.config.BaseURL, agentID)
 
+	// Create the JSON-RPC request
 	jsonReq := &types.JSONRPCRequest{
 		JSONRPC: "2.0",
 		Method:  types.A2AMethods.TasksSend,
@@ -74,41 +136,43 @@ func (c *Client) SendTask(ctx context.Context, agentID string, req *types.TaskRe
 		ID: uuid.New().String(),
 	}
 
+	// Marshal the request to JSON
 	reqBody, err := json.Marshal(jsonReq)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
+	// Create HTTP request
 	httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(reqBody))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
+	// Set headers
 	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("Accept", "application/json")
 	for k, v := range c.config.Headers {
 		httpReq.Header.Set(k, v)
 	}
 
+	// Send the request
 	resp, err := c.httpClient.Do(httpReq)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status: %s", resp.Status)
-	}
-
+	// Read and parse response
 	var jsonResp types.JSONRPCResponse
 	if err := json.NewDecoder(resp.Body).Decode(&jsonResp); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
+	// Check for JSON-RPC error
 	if jsonResp.Error != nil {
-		return nil, fmt.Errorf("A2A error %d: %s", jsonResp.Error.Code, jsonResp.Error.Message)
+		return nil, fmt.Errorf("JSON-RPC error: %s (code: %d)", jsonResp.Error.Message, jsonResp.Error.Code)
 	}
 
+	// Parse the result into a TaskResponse
 	var taskResp types.TaskResponse
 	if err := json.Unmarshal(jsonResp.Result, &taskResp); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal task response: %w", err)
@@ -201,7 +265,10 @@ func (c *Client) StreamTask(ctx context.Context, agentID string, req *types.Task
 
 // GetTaskStatus retrieves the status of a task
 func (c *Client) GetTaskStatus(ctx context.Context, agentID, taskID string) (*types.TaskStatus, error) {
+	// Construct the request URL
 	url := fmt.Sprintf("%s/%s", c.config.BaseURL, agentID)
+
+	// Create the JSON-RPC request
 	jsonReq := &types.JSONRPCRequest{
 		JSONRPC: "2.0",
 		Method:  types.A2AMethods.TasksStatus,
@@ -211,52 +278,57 @@ func (c *Client) GetTaskStatus(ctx context.Context, agentID, taskID string) (*ty
 		ID: uuid.New().String(),
 	}
 
+	// Marshal the request to JSON
 	reqBody, err := json.Marshal(jsonReq)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
+	// Create HTTP request
 	httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(reqBody))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
+	// Set headers
 	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("Accept", "application/json")
 	for k, v := range c.config.Headers {
 		httpReq.Header.Set(k, v)
 	}
 
+	// Send the request
 	resp, err := c.httpClient.Do(httpReq)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status: %s", resp.Status)
-	}
-
+	// Read and parse response
 	var jsonResp types.JSONRPCResponse
 	if err := json.NewDecoder(resp.Body).Decode(&jsonResp); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
+	// Check for JSON-RPC error
 	if jsonResp.Error != nil {
-		return nil, fmt.Errorf("A2A error %d: %s", jsonResp.Error.Code, jsonResp.Error.Message)
+		return nil, fmt.Errorf("JSON-RPC error: %s (code: %d)", jsonResp.Error.Message, jsonResp.Error.Code)
 	}
 
-	var status types.TaskStatus
-	if err := json.Unmarshal(jsonResp.Result, &status); err != nil {
+	// Parse the result into a TaskStatus
+	var taskStatus types.TaskStatus
+	if err := json.Unmarshal(jsonResp.Result, &taskStatus); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal task status: %w", err)
 	}
 
-	return &status, nil
+	return &taskStatus, nil
 }
 
 // CancelTask cancels a running task
 func (c *Client) CancelTask(ctx context.Context, agentID, taskID string) error {
+	// Construct the request URL
 	url := fmt.Sprintf("%s/%s", c.config.BaseURL, agentID)
+
+	// Create the JSON-RPC request
 	jsonReq := &types.JSONRPCRequest{
 		JSONRPC: "2.0",
 		Method:  types.A2AMethods.TasksCancel,
@@ -266,39 +338,40 @@ func (c *Client) CancelTask(ctx context.Context, agentID, taskID string) error {
 		ID: uuid.New().String(),
 	}
 
+	// Marshal the request to JSON
 	reqBody, err := json.Marshal(jsonReq)
 	if err != nil {
 		return fmt.Errorf("failed to marshal request: %w", err)
 	}
 
+	// Create HTTP request
 	httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(reqBody))
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
 
+	// Set headers
 	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("Accept", "application/json")
 	for k, v := range c.config.Headers {
 		httpReq.Header.Set(k, v)
 	}
 
+	// Send the request
 	resp, err := c.httpClient.Do(httpReq)
 	if err != nil {
 		return fmt.Errorf("request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status: %s", resp.Status)
-	}
-
+	// Read and parse response
 	var jsonResp types.JSONRPCResponse
 	if err := json.NewDecoder(resp.Body).Decode(&jsonResp); err != nil {
 		return fmt.Errorf("failed to decode response: %w", err)
 	}
 
+	// Check for JSON-RPC error
 	if jsonResp.Error != nil {
-		return fmt.Errorf("A2A error %d: %s", jsonResp.Error.Code, jsonResp.Error.Message)
+		return fmt.Errorf("JSON-RPC error: %s (code: %d)", jsonResp.Error.Message, jsonResp.Error.Code)
 	}
 
 	return nil
